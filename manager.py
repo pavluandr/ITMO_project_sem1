@@ -1,6 +1,33 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
-from process import load_sales_data, preprocess_data, get_top_n_products
+from process import load_sales_data, preprocess_data, get_top_n_products, calculate_revenue_by_period
+
+def present_revenue_by_period(data, period='D'):
+    revenue_data = calculate_revenue_by_period(data, period)# Получаем данные из функции calculate_revenue_by_period
+    
+    if period == 'D':
+        labels = revenue_data['Дата'].dt.strftime('%Y-%m-%d')# Получаем названия периодов
+        title_period = "дням"
+    elif period == 'W':
+        labels = ["Неделя " + str(i+1) for i in range(len(revenue_data))]# Формируем всё по дням, неделям, месяцам
+        title_period = "неделям"
+    else:
+        labels = revenue_data['Дата'].dt.strftime('%Y-%m')
+        title_period = "месяцам"
+    
+    values = revenue_data['Выручка по периоду']  # Данные для диаграммы
+    
+    plt.figure(figsize=(10, 8))
+    
+    colors = sns.color_palette("husl", len(values))
+    plt.pie(values, labels=labels, autopct='%1.1f%%', startangle=90, colors=colors)
+    
+    plt.title(f'Распределение выручки по {title_period}', fontsize=16, fontweight='bold')
+    plt.axis('equal')
+    plt.tight_layout() # Делаем диаграмму круглой и оторбажаем
+    plt.show()
+
+
 
 # Вывести топ продуктов
 def present_top_n_products(data, n, metric, date):
@@ -41,7 +68,30 @@ def get_user_request():
             print("Функция введена неверно, попробуйте еще раз.")
     
     if user_request == '1':
-        pass
+        while True:
+            print("\nВыберите период для анализа выручки:")
+            print("1. По дням")
+            print("2. По неделям") 
+            print("3. По месяцам")
+            period_choice = input("Введите число (1-3): ")
+            
+            if period_choice == '1':
+                period = 'D'
+                period_name = "дням"
+                break
+            elif period_choice == '2':
+                period = 'W'
+                period_name = "неделям"
+                break
+            elif period_choice == '3':
+                period = 'M'
+                period_name = "месяцам"
+                break
+            else:
+                print("Некорректный выбор. Пожалуйста, введите число от 1 до 3.")
+        
+        print(f"\nСтрою круговую диаграмму распределения выручки по {period_name}...")
+        present_revenue_by_period(clean_data, period)
 
     if user_request == '2':
         pass
@@ -88,4 +138,3 @@ def get_user_request():
 
 if __name__ == "__main__":
     get_user_request()
-
