@@ -91,10 +91,28 @@ def preprocess_data(data):
 # функция 6
 
 
-# функция 7
+def get_top_n_products(data_clean, n=5, metric='quantity', date='all'):
+    # заменить строчку с использованием функции 3. Отсекаем от датасета товары категории "Поступление"
+    sales_data = data_clean[data_clean['Операция'] == "Продажа"]
 
+    # Если указана конкретная дата, фильтруем датасет по этой дате
+    if date != 'all':
+        sales_data = sales_data[sales_data["Дата"] == date]
 
-# функция 8
+    # В соответствие с метрикой (количество или выручка) присваиваем колонку, по которой будет фильтровать
+    if metric == 'quantity':
+        sort_column = 'Количество упаковок, шт.'
+    elif metric == 'revenue':
+        sort_column = 'Сумма операции'
+    else:
+        return None
+
+    # Фильтрации датасета по колонке фильтрации по убыванию
+    data_sorted = sales_data.sort_values(by=sort_column, ascending=False)
+    # Возвращаем n верхних строчек фильтрованного сортированного датасета
+    return data_sorted.head(n)
+
 def get_top_n_products(data_clean, n=5, metric='quantity'):
 
     return
+
