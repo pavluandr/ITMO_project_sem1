@@ -80,6 +80,34 @@ def preprocess_data(data):
 
 
 
+def get_operational_data(data_clean, operation_type=None):
+    if operation_type is None: # Если тип операции не указан, возвращаем датасет
+        return data_clean.copy()
+    
+    operation_type_lower = operation_type.lower() # Приводим всё к нижнему регистру для упрощения сравнения
+    filtered_data = data_clean[data_clean['Операция'].str.lower() == operation_type_lower].copy() # Фильтруем данные по указанному типу операции
+    
+    return filtered_data
+
+
+
+def calculate_revenue_by_period(data_clean, period='D'):
+    sales_data = get_operational_data(data_clean, operation_type="продажа") # Получаем данные по продажам
+        
+    if period == 'W': # Группируем по периоду(неделе)
+        revenue_by_period = sales_data.groupby(pd.Grouper(key='Дата', freq='W-MON'))['Сумма операции'].sum().reset_index()# Группируем по понедельнику
+        revenue_by_period.columns = ['Дата', 'Выручка по периоду']
+    else:
+        revenue_by_period = sales_data.groupby(pd.Grouper(key='Дата', freq=period))['Сумма операции'].sum().reset_index()# Для группировки по дням и месяцам
+        revenue_by_period.columns = ['Дата', 'Выручка по периоду'] 
+        
+    revenue_by_period = revenue_by_period.sort_values('Дата')# Сортируем по возрастанию даты
+    revenue_by_period = revenue_by_period.reset_index(drop=True)# Ресет индексов
+        
+    return revenue_by_period
+
+
+
 def get_top_n_products(data_clean, n=5, metric='quantity', date='all'):
     # Оставляем только операции продажи
     sales_data = data_clean[data_clean['Операция'] == "Продажа"]
@@ -106,4 +134,5 @@ def get_top_n_products(data_clean, n=5, metric='quantity', date='all'):
     # Сортировка по колонке по убыванию
     data_sorted = grouped_data.sort_values(by=result_column, ascending=False)
     return data_sorted.head(n)
+
 
