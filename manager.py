@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 import seaborn as sns
-from UPDATEDprocess import load_sales_data, preprocess_data, get_top_n_products
+from process import load_sales_data, preprocess_data, get_top_n_products
 
 # Вывести топ продуктов
 def present_top_n_products(data, n, metric, date):
@@ -88,3 +88,4 @@ def get_user_request():
 
 if __name__ == "__main__":
     get_user_request()
+
