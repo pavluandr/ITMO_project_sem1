@@ -1,5 +1,4 @@
 import pandas as pd
-import numpy as np
 
 def load_sales_data(file_path):
     REQUIRED_COLS = [
@@ -79,40 +78,32 @@ def preprocess_data(data):
 
     return data_clean
 
-# функция 3
-
-
-# функция 4
-
-
-# функция 5
-
-
-# функция 6
 
 
 def get_top_n_products(data_clean, n=5, metric='quantity', date='all'):
-    # заменить строчку с использованием функции 3. Отсекаем от датасета товары категории "Поступление"
+    # Оставляем только операции продажи
     sales_data = data_clean[data_clean['Операция'] == "Продажа"]
 
-    # Если указана конкретная дата, фильтруем датасет по этой дате
+    # Если указана конкретная дата, переназначаем ее
     if date != 'all':
         sales_data = sales_data[sales_data["Дата"] == date]
 
-    # В соответствие с метрикой (количество или выручка) присваиваем колонку, по которой будет фильтровать
+    # Обозначаем переменные для фильтрации в зависимости от указанной метрики
     if metric == 'quantity':
-        sort_column = 'Количество упаковок, шт.'
+        agg_column = 'Количество упаковок, шт.'  # По чему составляется топ
+        result_column = f'Сумма_{agg_column}'   # Название нового столбца в датафрейме
+        agg_func = 'sum'  # Параметр агрегирования - сумма
     elif metric == 'revenue':
-        sort_column = 'Сумма операции'
+        agg_column = 'Сумма операции'
+        result_column = f'Сумма_{agg_column}'
+        agg_func = 'sum'
     else:
         return None
+        
+    # Группируем все записи для одинаковых названия товаров в одну строчку - сумма по товару, считаю сумму всех операций
+    grouped_data = sales_data.groupby('Название товара', as_index=False).agg({agg_column: agg_func}).rename(columns={agg_column: result_column})
 
-    # Фильтрации датасета по колонке фильтрации по убыванию
-    data_sorted = sales_data.sort_values(by=sort_column, ascending=False)
-    # Возвращаем n верхних строчек фильтрованного сортированного датасета
+    # Сортировка по колонке по убыванию
+    data_sorted = grouped_data.sort_values(by=result_column, ascending=False)
     return data_sorted.head(n)
-
-def get_top_n_products(data_clean, n=5, metric='quantity'):
-
-    return
 
