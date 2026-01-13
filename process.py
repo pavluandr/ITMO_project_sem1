@@ -1,5 +1,6 @@
 import pandas as pd
 
+
 def load_sales_data(file_path):
     REQUIRED_COLS = [
     "ID операции",
@@ -134,5 +135,3 @@ def get_top_n_products(data_clean, n=5, metric='quantity', date='all'):
     # Сортировка по колонке по убыванию
     data_sorted = grouped_data.sort_values(by=result_column, ascending=False)
     return data_sorted.head(n)
-
-
